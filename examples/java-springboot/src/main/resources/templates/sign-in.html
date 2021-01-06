@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html xmlns:th="https://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Sign In - DIDKit Example</title>
+</head>
+<body>
+<form th:action="@{/sign-in}" method="post">
+    <label>
+        Username:
+        <input
+                type="text"
+                id="username"
+                name="username"
+        />
+    </label>
+
+    <label>
+        Password:
+        <input
+                type="password"
+                id="password"
+                name="password"
+        />
+    </label>
+
+    <input type="submit" value="Sign In"/>
+</form>
+</body>
+</html>
