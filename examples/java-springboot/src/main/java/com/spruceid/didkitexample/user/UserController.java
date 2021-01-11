@@ -8,6 +8,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.servlet.ModelAndView;
+import javax.servlet.http.HttpServletRequest;
+import org.springframework.ui.Model;
 
 @Controller
 @AllArgsConstructor
@@ -28,6 +30,19 @@ public class UserController {
     @GetMapping("/sign-in")
     String signIn() {
         return "sign-in";
+    }
+
+    @GetMapping("/credential")
+    String credential() {
+        return "credential";
+    }
+
+    @PostMapping("/credential")
+    String credentialOffer(HttpServletRequest request, @AuthenticationPrincipal User user, Model model) throws Exception {
+        final String did = request.getParameter("did");
+        final String credential = userService.issueCredential(did, user);
+        model.addAttribute("credential", credential);
+        return "credential-offer";
     }
 
     @PostMapping("/qrcode")
