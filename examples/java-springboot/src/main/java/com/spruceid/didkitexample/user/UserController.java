@@ -36,4 +36,5 @@ public class UserController {
         final String credential = userService.issueCredential(id, user);
         return QRCode.getModelAndView(credential);
     }
+
 }

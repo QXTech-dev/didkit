@@ -47,7 +47,7 @@ public class UserService implements UserDetailsService {
         final String verificationMethod = DIDKit.keyToVerificationMethod(key);
 
         final UserCredential credential = new UserCredential(didKey, id, user.getUsername());
-        final DIDKitOptions options = new DIDKitOptions("authentication", verificationMethod);
+        final DIDKitOptions options = new DIDKitOptions("authentication", verificationMethod, null, null);
 
         final ObjectMapper mapper = new ObjectMapper();
         final String credentialJson = mapper.writeValueAsString(credential);
