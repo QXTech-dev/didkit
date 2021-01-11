@@ -52,6 +52,7 @@ public class VPAuthenticationProvider implements AuthenticationProvider {
         }
 
         final Map<String, Object> verifiableCredential = (Map<String, Object>) presentation.get("verifiableCredential");
+        // TODO: verify credential
         final Map<String, Object> credentialSubject = (Map<String, Object>) verifiableCredential.get("credentialSubject");
         final String username = credentialSubject.get("alumniOf").toString();
         final User user = (User) userService.loadUserByUsername(username);
