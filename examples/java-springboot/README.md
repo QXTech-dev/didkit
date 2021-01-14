@@ -31,7 +31,7 @@ DIDKit codebase, so all you have to do is run the following command in the root
 folder to build everything.
 
 ```bash
-make -C lib ../target/test/java.stamp
+make -C lib ../target/didkit.jar
 ```
 
 If you are trying to use DIDKit with an external Java project, you will have to
@@ -47,6 +47,29 @@ listed it in this projects `pom.xml` for Maven:
   <scope>system</scope>
   <systemPath>${basedir}/didkit.jar</systemPath>
 </dependency>
+```
+
+### Database (MySQL)
+
+This project uses a MySQL database to store the user entity. One easy way to run
+an instance is by using docker:
+
+```bash
+# docker run \
+  -e MYSQL_ROOT_PASSWORD=root \
+  -e MYSQL_DATABASE=didkit \
+  -p 3306:3306 \
+  --name didkit-java-db \
+  -d mysql:5
+```
+
+If you need to modify the database credentials you will need to update the
+relevant fields in `src/main/resources/application.properties`.
+
+```
+spring.datasource.url=jdbc:mysql://localhost:3306/didkit
+spring.datasource.username=root
+spring.datasource.password=root
 ```
 
 ## Running
