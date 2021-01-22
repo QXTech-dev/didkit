@@ -1,10 +1,28 @@
 <script lang="ts">
   import { Link } from "svelte-navigator";
-  import { registerWallet } from "../../chapi.ts";
+  import { installHandler } from "web-credential-handler";
 
-  const onClick = (event) => {
+  import Config from "../../config.ts";
+
+  const onClick = async (event) => {
     event.preventDefault();
-    registerWallet();
+
+    try {
+      await credentialHandlerPolyfill.loadOnce(Config.MEDIATOR);
+    } catch (e) {
+      console.error("Error in loadOnce:", e);
+    }
+
+    const registration = await installHandler({
+      url: Config.WALLET_WORKER_URL,
+    });
+
+    await registration.credentialManager.hints.set("test", {
+      name: "User",
+      enabledTypes: ["VerifiablePresentation", "VerifiableCredential"],
+    });
+
+    console.log("Wallet registered!");
   };
 
   const linkStyle =
