@@ -32,7 +32,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         http
                 .addFilterBefore(authenticationFilter(), UsernamePasswordAuthenticationFilter.class)
                 .authorizeRequests()
-                .antMatchers("/version", "/sign-up/**", "/sign-in/**", "/scripts/**")
+                .antMatchers("/favicon.ico", "/manifest.json", "/version", "/sign-up/**", "/sign-in/**", "/scripts/**")
                 .permitAll()
                 .anyRequest()
                 .authenticated()
