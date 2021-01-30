@@ -16,7 +16,7 @@ import java.util.UUID;
 @Setter
 public class UserCredential {
     @JsonProperty("@context")
-    private String context;
+    private String[] context;
 
     private String id;
 
@@ -31,7 +31,7 @@ public class UserCredential {
     @AllArgsConstructor
     public static class CredentialSubject {
         private String id;
-        @JsonIgnore
+        @JsonProperty("alumniOf")
         private String username;
     }
 
@@ -41,7 +41,10 @@ public class UserCredential {
     private static final DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
 
     public UserCredential(String issuer, String subjectId, String subjectUsername) {
-        context = "https://www.w3.org/2018/credentials/v1";
+        context = new String[] {
+          "https://www.w3.org/2018/credentials/v1",
+          "https://www.w3.org/2018/credentials/examples/v1"
+        };
         id = "urn:uuid:" + UUID.randomUUID();
         type = new String[]{"VerifiableCredential"};
         this.issuer = issuer;

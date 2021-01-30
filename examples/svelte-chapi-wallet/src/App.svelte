@@ -1,12 +1,29 @@
 <script>
   import { Router } from "svelte-navigator";
+
   import { Body, Footer, Header } from "./ui/container";
+  import { minimalState } from "./store.ts";
+
+  let minimal;
+  minimalState.subscribe((value) => {
+    minimal = value;
+  });
 </script>
 
 <Router>
-  <Header />
-  <Body />
-  <Footer />
+  {#if minimal}
+    <main
+      class="flex flex-col w-full h-full justify-center items-center p-2 bg-white"
+    >
+      <Body />
+    </main>
+  {:else}
+    <Header />
+    <main class="h-full">
+      <Body />
+    </main>
+    <Footer />
+  {/if}
 </Router>
 
 <style global lang="postcss">

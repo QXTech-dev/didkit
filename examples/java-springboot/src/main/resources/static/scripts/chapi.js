@@ -11,31 +11,34 @@ $(document).ready(async function() {
     const credentialQuery = {
       web: {
         VerifiablePresentation: {
+          //challenge: uuidv4(),
+          domain: "java.theosirian.com",
           query: {
             type: 'QueryByExample',
             credentialQuery: {
-              reason: "Login to Demo App"
-            }
-          }
-        }
-      }
+              reason: "Login to Demo App",
+            },
+          },
+        },
+      },
     };
 
     const webCredential = await navigator.credentials.get(credentialQuery);
     if (!webCredential) return;
 
     if (webCredential.type !== 'web') {
-      return alert('Invalid web credential type')
+      return alert('Invalid web credential type');
     }
 
     if (webCredential.dataType !== 'VerifiablePresentation') {
-      return alert('Invalid web credential data type')
+      return alert('Invalid web credential data type');
     }
 
-    const vp = webCredential.data
+    const vp = webCredential.data;
 
-    console.log('VP', vp)
-    // TODO: post VP to server and redirect
+    console.log(vp);
+    $('#chapi-vp').val(JSON.stringify(vp));
+    $('#chapi-form').submit();
   });
 
   $('#chapi-store').on('click', async function (event) {
@@ -43,13 +46,7 @@ $(document).ready(async function() {
 
     const vc = JSON.parse(document.getElementById('credential').value);
     // https://github.com/digitalbazaar/credential-handler-polyfill#webcredential
-    const presentation = {
-      "@context": "https://www.w3.org/2018/credentials/v1",
-      "type": "VerifiablePresentation",
-      "verifiableCredential": [vc]
-    };
-    const webCredential = new WebCredential('VerifiablePresentation', presentation);
+    const webCredential = new WebCredential('VerifiableCredential', vc);
     const result = await navigator.credentials.store(webCredential);
-    console.log(result);
   });
 });

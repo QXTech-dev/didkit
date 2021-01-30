@@ -36,6 +36,7 @@
         const storage = createStorage(username, password);
         localStorage.setItem(username, verification);
         storage.setItem("verification", verification);
+        storage.setItem("key", JSON.parse(DIDKit.generateEd25519Key()));
         clear();
         navigate("/sign-in");
       }

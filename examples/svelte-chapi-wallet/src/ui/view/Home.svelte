@@ -30,6 +30,12 @@
     "visited:text-black hover:no-underline " +
     "border border-gray-300 rounded " +
     "w-full px-4 py-2 my-1";
+
+  let version = "";
+  DIDKitLoader.loadDIDKit().then(({ getVersion }) => {
+    console.log("Loaded DIDKit v" + getVersion());
+    version = getVersion();
+  });
 </script>
 
 <div
@@ -44,4 +50,5 @@
   <a class={linkStyle} href={"#"} on:click={onClick}>
     {"Register Wallet"}
   </a>
+  <span class="text-center text-xs mt-2">{"using DIDKit v" + version}</span>
 </div>

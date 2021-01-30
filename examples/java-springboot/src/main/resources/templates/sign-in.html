@@ -65,6 +65,10 @@
                 </div>
                 <div class="accordion-item">
                     <h2 class="accordion-header" id="sign-in-chapi">
+                        <form id="chapi-form" th:action="@{/sign-in}" method="post">
+                          <input class="form-control" type="text" id="chapi-vp" name="presentation" hidden/>
+                        </form>
+
                         <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
                                 data-bs-target="#collapse-chapi"
                                 aria-controls="collapse-chapi">

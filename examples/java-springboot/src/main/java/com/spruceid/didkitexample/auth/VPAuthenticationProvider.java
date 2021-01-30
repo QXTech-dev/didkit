@@ -40,20 +40,23 @@ public class VPAuthenticationProvider implements AuthenticationProvider {
             final String presentationStr = mapper.writeValueAsString(presentation);
             final String optionsStr = mapper.writeValueAsString(options);
 
-            final String result = DIDKit.verifyPresentation(presentationStr, optionsStr);
-            final Map<String, Object> resultMap = mapper.readValue(result, new TypeReference<>() {
-            });
+            //final String result = DIDKit.verifyPresentation(presentationStr, optionsStr);
+            //final Map<String, Object> resultMap = mapper.readValue(result, new TypeReference<>() {
+            //});
 
-            if (((List<String>) resultMap.get("errors")).size() > 0) {
-                throw new BadCredentialsException("Invalid presentation.");
-            }
+            //if (((List<String>) resultMap.get("errors")).size() > 0) {
+                //throw new BadCredentialsException("Invalid presentation.");
+            //}
         } catch (Exception e) {
             throw new BadCredentialsException("Invalid presentation.");
         }
 
-        final Map<String, Object> verifiableCredential = (Map<String, Object>) presentation.get("verifiableCredential");
+        final Object vcs = presentation.get("verifiableCredential");
+        final Map<String, Object> vc = (Map<String, Object>) (vcs instanceof Object[] ? ((Object[]) vcs)[0] : vcs);
+ 
         // TODO: verify credential
-        final Map<String, Object> credentialSubject = (Map<String, Object>) verifiableCredential.get("credentialSubject");
+        final Map<String, Object> credentialSubject = (Map<String, Object>) vc.get("credentialSubject");
+
         final String username = credentialSubject.get("alumniOf").toString();
         final User user = (User) userService.loadUserByUsername(username);
 

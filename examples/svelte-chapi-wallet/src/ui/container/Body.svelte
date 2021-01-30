@@ -10,28 +10,26 @@
   });
 </script>
 
-<main class="h-full">
-  <Route path="/">
-    {#if wstate !== null}
-      <Wallet />
-    {:else}
-      <Home />
-    {/if}
-  </Route>
-  <Route path="/sign-in">
-    <SignIn />
-  </Route>
-  <Route path="/sign-up">
-    <SignUp />
-  </Route>
+<Route path="/">
+  {#if wstate !== null}
+    <Wallet />
+  {:else}
+    <Home />
+  {/if}
+</Route>
+<Route path="/sign-in">
+  <SignIn />
+</Route>
+<Route path="/sign-up">
+  <SignUp />
+</Route>
 
-  <Route path="/wallet-get">
-    <WalletGet />
-  </Route>
-  <Route path="/wallet-store">
-    <WalletStore />
-  </Route>
-  <Route path="/wallet-worker">
-    <WalletWorker />
-  </Route>
-</main>
+<Route path="/wallet-get">
+  <WalletGet />
+</Route>
+<Route path="/wallet-store">
+  <WalletStore />
+</Route>
+<Route path="/wallet-worker">
+  <WalletWorker />
+</Route>

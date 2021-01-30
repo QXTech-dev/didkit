@@ -8,3 +8,5 @@ export type Wallet = {
 
 export type WalletState = Wallet | null;
 export const walletState: Writable<WalletState> = writable(null);
+
+export const minimalState: Writable<boolean> = writable(false);

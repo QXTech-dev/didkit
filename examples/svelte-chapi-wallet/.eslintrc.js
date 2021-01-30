@@ -10,6 +10,8 @@ module.exports = {
   },
   globals: {
     credentialHandlerPolyfill: "readonly",
+    DIDKitLoader: "readonly",
+    DIDKit: "readonly",
   },
   extends: ["eslint:recommended", "prettier"],
   overrides: [

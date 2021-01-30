@@ -3,13 +3,16 @@
   import { receiveCredentialEvent } from "web-credential-handler";
 
   import Config from "../../config.ts";
-  import { walletState } from "../../store.ts";
+  import { walletState, minimalState } from "../../store.ts";
+
+  minimalState.set(true);
 
   let wstate;
   walletState.subscribe((value) => {
     wstate = value;
   });
 
+  let type = "";
   let issuer = "";
   let preview = "";
 
@@ -25,25 +28,48 @@
       return;
     }
 
+    await DIDKitLoader.loadDIDKit();
     const event = await receiveCredentialEvent();
     const { credential } = event;
-    const vp = credential.data;
-    const vc = Array.isArray(vp.verifiableCredential)
-      ? vp.verifiableCredential[0]
-      : vp.verifiableCredential;
-    preview = JSON.stringify(vp);
-    issuer = vc.issuer;
-    console.log(credential);
+    const { data, dataType } = credential;
 
-    accept = () => {
-      const data = wstate.storage.getItem("data") || [];
-      wstate.storage.setItem("data", [...data, credential]);
-      event.respondWith(
-        Promise.resolve({
-          dataType: "VerifiablePresentation",
-          data: credential,
-        })
-      );
+    type = dataType;
+    if (dataType === "VerifiablePresentation") {
+      preview = Array.isArray(data.verifiableCredential)
+        ? data.verifiableCredential
+            .map((item) => JSON.stringify(item, null, 2))
+            .join("\n\n")
+        : JSON.stringify(data.verifiableCredential, null, 2);
+      issuer = Array.isArray(data.verifiableCredential)
+        ? data.verifiableCredential.map((item) => item.issuer).join(", ")
+        : data.verifiableCredential.issuer;
+    } else if (dataType === "VerifiableCredential") {
+      preview = JSON.stringify(data, null, 2);
+      issuer = data.issuer;
+    } else {
+      preview = "Cannot display a preview of this item";
+      issuer = "-";
+    }
+
+    accept = async () => {
+      // TODO: fix verify
+      const { keyToVerificationMethod, verifyCredential } = DIDKit;
+      const key = wstate.storage.getItem("key");
+      const keyStr = JSON.stringify(key);
+      const verificationMethod = keyToVerificationMethod("key", keyStr);
+      const options = JSON.stringify({
+        verificationMethod,
+        proofPurpose: "assertionMethod",
+      });
+      const verifyStr = await verifyCredential(JSON.stringify(data), options);
+      const verify = JSON.parse(verifyStr);
+      if (verify.errors.length > 0) {
+        console.log("Failed to verify credential: " + verify.errors);
+      } else {
+        const walletData = wstate.storage.getItem("data") || [];
+        wstate.storage.setItem("data", [...walletData, data]);
+        event.respondWith(Promise.resolve({ dataType, data }));
+      }
     };
 
     reject = () => event.respondWith(Promise.resolve(null));
@@ -52,10 +78,32 @@
   credentialHandlerPolyfill.loadOnce(Config.MEDIATOR).then(handleStoreEvent);
 </script>
 
-<div class="container">
-  <h1>You have received the following credential:</h1>
-  <h2>Issuer: {issuer}</h2>
-  <p>{preview}</p>
-  <button on:click={accept}>{"Accept"}</button>
-  <button on:click={reject}>{"Reject"}</button>
+<div class="container flex flex-col px-6 py-4 shadow rounded">
+  <h1 class="text-xl text-black my-2">
+    {"You have received the following credential:"}
+  </h1>
+  <h2 class="text-xs text-gray-500">
+    <span class="font-bold">{"Type:"}</span>
+    <span class="text-sm">{type}</span>
+  </h2>
+  <h2 class="text-xs text-gray-500">
+    <span class="font-bold">{"Issued by:"}</span>
+    <span class="text-sm">{issuer}</span>
+  </h2>
+  <textarea
+    class="text-xs font-mono my-4 px-4"
+    rows="8"
+    value={"\n" + preview + "\n"}
+    disabled
+  />
+  <div class="flex flex-row">
+    <button
+      class="text-sm font-medium text-center w-full rounded px-4 py-2 mr-2"
+      on:click={accept}>{"Accept"}</button
+    >
+    <button
+      class="text-sm font-medium text-center w-full rounded px-4 py-2 ml-2"
+      on:click={reject}>{"Reject"}</button
+    >
+  </div>
 </div>

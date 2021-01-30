@@ -1,12 +1,15 @@
 <script lang="ts">
   import { navigate } from "svelte-navigator";
   import { receiveCredentialEvent } from "web-credential-handler";
+  import { v4 as uuid } from "uuid";
 
   import { WalletItem } from "../component";
 
   import Config from "../../config.ts";
-  import { walletState } from "../../store.ts";
-  import { copyToClipboard } from "../../utils.ts";
+  import { walletState, minimalState } from "../../store.ts";
+  import { enumerateItems } from "../../utils.ts";
+
+  minimalState.set(true);
 
   let wstate;
   walletState.subscribe((value) => {
@@ -28,10 +31,12 @@
       return;
     }
 
+    await DIDKitLoader.loadDIDKit();
     const event = await receiveCredentialEvent();
     origin = event.credentialRequestOrigin;
 
     const vp = event.credentialRequestOptions.web.VerifiablePresentation;
+    const { challenge, domain } = vp;
     const query = Array.isArray(vp.query) ? vp.query[0] : vp.query;
 
     if (query.type !== "QueryByExample") {
@@ -42,9 +47,38 @@
 
     reason = query.credentialQuery.reason;
 
-    present = (data) => () => {
+    present = (data) => async () => {
+      const { keyToDID, keyToVerificationMethod, issuePresentation } = DIDKit;
+      const key = wstate.storage.getItem("key");
+      const keyStr = JSON.stringify(key);
+      const didKey = keyToDID("key", keyStr);
+      const verificationMethod = await keyToVerificationMethod("key", keyStr);
+      const vp = JSON.stringify({
+        "@context": ["https://www.w3.org/2018/credentials/v1"],
+        type: ["VerifiablePresentation"],
+        id: `urn:uuid:${uuid()}`,
+        holder: didKey,
+        verifiableCredential: data,
+      });
+      const options = JSON.stringify({
+        challenge,
+        domain,
+        verificationMethod,
+        proofPurpose: "authentication",
+      });
+
+      console.log(vp);
+      console.log(options);
+      console.log(keyStr);
+
+      const signed = await issuePresentation(vp, options, keyStr);
+      console.log(signed);
+
       event.respondWith(
-        Promise.resolve({ dataType: "VerifiablePresentation", data })
+        Promise.resolve({
+          dataType: "VerifiablePresentation",
+          data: signed,
+        })
       );
     };
 
@@ -58,21 +92,26 @@
   credentialHandlerPolyfill.loadOnce(Config.MEDIATOR).then(handleGetEvent);
 </script>
 
-<div class="container">
-  <h1>{origin} is requesting a credential</h1>
-  <h2>Reason: {reason}</h2>
+<div class="container flex flex-col px-6 py-4 shadow rounded">
+  <h1 class="text-xl text-black my-2">
+    <span class="font-bold">{origin}</span>
+    {" is requesting a credential"}
+  </h1>
+  <h2 class="text-xs text-gray-500">
+    <span class="font-bold">{"Reason:"}</span>
+    <span class="text-sm">{reason}</span>
+  </h2>
 
-  {#if wstate !== null}
-    {#each wstate.storage.getItem("data") as item}
-      <WalletItem
-        type={item?.type}
-        copy={() => copyToClipboard(JSON.stringify(item))}
-        share={present(item)}
-      >
-        {item?.id}
-      </WalletItem>
-    {/each}
-  {/if}
+  <div class="my-2">
+    {#if wstate !== null}
+      {#each enumerateItems(wstate.storage.getItem("data")) as { type, item }}
+        <WalletItem {type} {item} share={present(item)} buttons={["share"]} />
+      {/each}
+    {/if}
+  </div>
 
-  <button on:click={cancel}>{"Cancel"}</button>
+  <button
+    class="text-sm font-medium text-center w-full rounded px-4 py-2 ml-2"
+    on:click={cancel}>{"Cancel"}</button
+  >
 </div>
