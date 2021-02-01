@@ -43,8 +43,8 @@ public class UserService implements UserDetailsService {
         final Resource keyFile = new FileSystemResource("./key.jwk");
 
         final String key = Files.readString(keyFile.getFile().toPath());
-        final String didKey = DIDKit.keyToDID(key);
-        final String verificationMethod = DIDKit.keyToVerificationMethod(key);
+        final String didKey = DIDKit.keyToDID("key", key);
+        final String verificationMethod = DIDKit.keyToVerificationMethod("key", key);
 
         final UserCredential credential = new UserCredential(didKey, id, user.getUsername());
         final DIDKitOptions options = new DIDKitOptions("authentication", verificationMethod, null, null);

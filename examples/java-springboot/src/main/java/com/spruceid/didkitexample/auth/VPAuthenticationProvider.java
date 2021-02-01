@@ -33,7 +33,7 @@ public class VPAuthenticationProvider implements AuthenticationProvider {
         try {
             final Resource keyFile = new FileSystemResource("./key.jwk");
             final String key = Files.readString(keyFile.getFile().toPath());
-            final String verificationMethod = DIDKit.keyToVerificationMethod(key);
+            final String verificationMethod = DIDKit.keyToVerificationMethod("key", key);
 
             final ObjectMapper mapper = new ObjectMapper();
             final DIDKitOptions options = new DIDKitOptions("authentication", verificationMethod, null, "theosirian.com");
