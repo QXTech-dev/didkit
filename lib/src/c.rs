@@ -98,7 +98,7 @@ fn key_to_verification_method(
         .generate(&Source::Key(&key))
         .ok_or(Error::UnableToGenerateDID)?;
     let did_resolver = did_method.to_resolver();
-    let vm = block_on(get_verification_method(&did, did_resolver))
+    let vm = block_on(get_verification_method(&did, did_resolver))?
         .ok_or(Error::UnableToGetVerificationMethod)?;
     Ok(CString::new(vm)?.into_raw())
 }

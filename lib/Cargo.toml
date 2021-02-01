@@ -6,7 +6,7 @@ edition = "2018"
 
 [dependencies]
 #didkit_cbindings = { path = "cbindings/" }
-ssi = { path = "../../ssi" }
+ssi = { path = "../../ssi", default-features = false }
 did-key = { path = "../../ssi/did-key" }
 did-tezos = { path = "../../ssi/did-tezos" }
 did-web = { path = "../../ssi/did-web", optional = true }
@@ -18,3 +18,7 @@ lazy_static = "1.4"
 
 [lib]
 crate-type = ["lib", "cdylib"]
+
+[features]
+default = []
+wasm = []
